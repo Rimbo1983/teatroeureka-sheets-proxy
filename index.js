@@ -5,31 +5,46 @@ const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const SHEET_ID = process.env.SHEET_ID;
 
-// Habilitar CORS para permitir peticiones desde cualquier origen
 app.use(cors());
 
-const SHEET_ID = process.env.SHEET_ID;
-// Leer la celda J2 de la pestaña "Grupos"
-const RANGE    = 'Grupos!J2:J2';
+async function leerCelda(rango) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(rango)}?key=${process.env.GOOGLE_API_KEY}`;
+  const resp = await fetch(url);
+  const data = await resp.json();
+  return data.values?.[0]?.[0] || '';
+}
 
+// Nivel Inicial → celda J2
 app.get('/horarios', async (req, res) => {
   try {
-    const sheetUrl =
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}` +
-      `?key=${process.env.GOOGLE_API_KEY}`;
-
-    console.log('Consultando URL:', sheetUrl);
-    const resp = await fetch(sheetUrl);
-    const data = await resp.json();
-
-    console.log('Datos API Sheets:', data);
-
-    // Extrae el valor de la celda Grupos!J2
-    const valor = data.values?.[0]?.[0] || '';
+    const valor = await leerCelda('Grupos!J2');
     res.json({ horario: valor });
   } catch (err) {
-    console.error('Error leyendo Google Sheet:', err);
+    console.error(err);
+    res.status(500).json({ error: 'No se pudo leer el sheet' });
+  }
+});
+
+// Nivel Intermedio → celda K2
+app.get('/horarios/intermedio', async (req, res) => {
+  try {
+    const valor = await leerCelda('Grupos!K2');
+    res.json({ horario: valor });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'No se pudo leer el sheet' });
+  }
+});
+
+// Nivel Avanzado → celda L2
+app.get('/horarios/avanzado', async (req, res) => {
+  try {
+    const valor = await leerCelda('Grupos!L2');
+    res.json({ horario: valor });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'No se pudo leer el sheet' });
   }
 });
