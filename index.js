@@ -10,18 +10,22 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 
 const SHEET_ID = process.env.SHEET_ID;
-const RANGE    = 'J2:J2';
+// Leer la celda J2 de la pestaña "Grupos"
+const RANGE    = 'Grupos!J2:J2';
 
 app.get('/horarios', async (req, res) => {
   try {
     const sheetUrl =
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}` +
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(RANGE)}` +
       `?key=${process.env.GOOGLE_API_KEY}`;
 
+    console.log('Consultando URL:', sheetUrl);
     const resp = await fetch(sheetUrl);
     const data = await resp.json();
 
-    // Extrae el valor de la celda J2
+    console.log('Datos API Sheets:', data);
+
+    // Extrae el valor de la celda Grupos!J2
     const valor = data.values?.[0]?.[0] || '';
     res.json({ horario: valor });
   } catch (err) {
