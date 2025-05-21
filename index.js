@@ -1,12 +1,12 @@
 require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
-const cors = require('cors');          // Importamos cors
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware CORS: permite peticiones desde cualquier origen
+// Habilitar CORS para permitir peticiones desde cualquier origen
 app.use(cors());
 
 const SHEET_ID = process.env.SHEET_ID;
@@ -14,14 +14,14 @@ const RANGE    = 'J2:J2';
 
 app.get('/horarios', async (req, res) => {
   try {
-    const sheetUrl = 
+    const sheetUrl =
       `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}` +
       `?key=${process.env.GOOGLE_API_KEY}`;
 
     const resp = await fetch(sheetUrl);
     const data = await resp.json();
 
-    // Extraemos el valor de la celda J2
+    // Extrae el valor de la celda J2
     const valor = data.values?.[0]?.[0] || '';
     res.json({ horario: valor });
   } catch (err) {
