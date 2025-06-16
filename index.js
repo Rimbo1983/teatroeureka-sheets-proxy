@@ -16,6 +16,11 @@ async function leerCelda(rango) {
   return data.values?.[0]?.[0] || '';
 }
 
+// Ruta raíz para el health check
+app.get('/', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // Nivel Inicial → celda J2
 app.get('/horarios', async (req, res) => {
   try {
